@@ -1,7 +1,9 @@
 package com.kbak.ecommerce.config;
 
+import com.kbak.ecommerce.entity.Country;
 import com.kbak.ecommerce.entity.Product;
 import com.kbak.ecommerce.entity.ProductCategory;
+import com.kbak.ecommerce.entity.State;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.metamodel.EntityType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,45 +23,51 @@ public class MyDataRestConfig implements RepositoryRestConfigurer {
     private EntityManager entityManager;
 
     @Autowired
-    public MyDataRestConfig(EntityManager entityManager) {
-        this.entityManager = entityManager;
+    public MyDataRestConfig(EntityManager theEntityManager) {
+        entityManager = theEntityManager;
     }
+
 
     @Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
-        //Disable PUT, POST, DELETE methods for Product
-        HttpMethod[] methodsToDisableProduct= {HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE};
 
-        config.getExposureConfiguration()
-                .forDomainType(Product.class)
-                .withItemExposure((metdata, httpMethods) -> httpMethods.disable(methodsToDisableProduct))
-                .withCollectionExposure((metdata, httpMethods) -> httpMethods.disable(methodsToDisableProduct));
+        HttpMethod[] theUnsupportedActions = {HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE, HttpMethod.PATCH};
 
-        //Disable PUT, POST, DELETE methods for ProductCategory
-        HttpMethod[] methodsToDisableProductCategory= {HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE};
+        // disable HTTP methods for ProductCategory: PUT, POST and DELETE
+        disableHttpMethods(Product.class, config, theUnsupportedActions);
+        disableHttpMethods(ProductCategory.class, config, theUnsupportedActions);
+        disableHttpMethods(Country.class, config, theUnsupportedActions);
+        disableHttpMethods(State.class, config, theUnsupportedActions);
 
-        config.getExposureConfiguration()
-                .forDomainType(ProductCategory.class)
-                .withItemExposure((metdata, httpMethods) -> httpMethods.disable(methodsToDisableProductCategory))
-                .withCollectionExposure((metdata, httpMethods) -> httpMethods.disable(methodsToDisableProductCategory));
-
-        // changes to return id of category as well
-        exposeId(config);
+        // call an internal helper method
+        exposeIds(config);
     }
 
-    // function which help to return Ids together with query results
-    private void exposeId(RepositoryRestConfiguration config) {
+    private void disableHttpMethods(Class theClass, RepositoryRestConfiguration config, HttpMethod[] theUnsupportedActions) {
+        config.getExposureConfiguration()
+                .forDomainType(theClass)
+                .withItemExposure((metdata, httpMethods) -> httpMethods.disable(theUnsupportedActions))
+                .withCollectionExposure((metdata, httpMethods) -> httpMethods.disable(theUnsupportedActions));
+    }
+
+    private void exposeIds(RepositoryRestConfiguration config) {
+
+        // expose entity ids
+        //
+
+        // - get a list of all entity classes from the entity manager
         Set<EntityType<?>> entities = entityManager.getMetamodel().getEntities();
+
+        // - create an array of the entity types
         List<Class> entityClasses = new ArrayList<>();
 
-        for (EntityType et : entities) {
-            entityClasses.add(et.getJavaType());
+        // - get the entity types for the entities
+        for (EntityType tempEntityType : entities) {
+            entityClasses.add(tempEntityType.getJavaType());
         }
 
+        // - expose the entity ids for the array of entity/domain types
         Class[] domainTypes = entityClasses.toArray(new Class[0]);
         config.exposeIdsFor(domainTypes);
-
     }
-
-
 }
