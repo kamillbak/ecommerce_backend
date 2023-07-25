@@ -31,14 +31,14 @@ public class Customer {
     private Set<Order> orders = new HashSet<>();
 
     public void add(Order order) {
-
         if (order != null) {
-
+            // if no previous orders for customers
             if (orders == null) {
                 orders = new HashSet<>();
             }
-
+            // add order to customer orders
             orders.add(order);
+            //set customer on order object
             order.setCustomer(this);
         }
     }

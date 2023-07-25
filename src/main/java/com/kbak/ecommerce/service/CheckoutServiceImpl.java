@@ -25,38 +25,33 @@ public class CheckoutServiceImpl implements CheckoutService {
     @Override
     @Transactional
     public PurchaseResponse placeOrder(Purchase purchase) {
-
-        // retrieve the order info from dto
+        // take order from Purchase object
         Order order = purchase.getOrder();
 
-        // generate tracking number
+        // generate random tracking number
         String orderTrackingNumber = generateOrderTrackingNumber();
         order.setOrderTrackingNumber(orderTrackingNumber);
 
-        // populate order with orderItems
+        // add orderItems to order object
         Set<OrderItem> orderItems = purchase.getOrderItems();
         orderItems.forEach(item -> order.add(item));
 
-        // populate order with billingAddress and shippingAddress
+        // add adresses to order
         order.setBillingAddress(purchase.getBillingAddress());
         order.setShippingAddress(purchase.getShippingAddress());
 
-        // populate customer with order
+        // add order to customer
         Customer customer = purchase.getCustomer();
         customer.add(order);
 
-        // save to the database
+        // save customer to DB using repository
         customerRepository.save(customer);
 
-        // return a response
+        // return tracing number as a response
         return new PurchaseResponse(orderTrackingNumber);
     }
 
     private String generateOrderTrackingNumber() {
-
-        // generate a random UUID number (UUID version-4)
-        // For details see: https://en.wikipedia.org/wiki/Universally_unique_identifier
-        //
         return UUID.randomUUID().toString();
     }
 }

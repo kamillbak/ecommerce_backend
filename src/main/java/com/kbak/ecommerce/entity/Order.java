@@ -58,14 +58,28 @@ public class Order {
     private Address billingAddress;
 
     public void add(OrderItem item) {
-
         if (item != null) {
+            // if here is no orderItems yet
             if (orderItems == null) {
                 orderItems = new HashSet<>();
             }
-
+            // add item
             orderItems.add(item);
             item.setOrder(this);
         }
     }
 }
+
+/*
+@GeneratedValue(strategy = GenerationType.IDENTITY) - annotation to take Id from DB
+
+cascade = CascadeType.ALL - all operations done in this entity will affect other entities as well
+
+@JoinColumn(name = "billing_address_id", referencedColumnName = "id")
+above:
+name - name of field in entity, which is a foreign key
+referencedColumnName - column name in related entity, which is a prima key there
+
+
+ */
+

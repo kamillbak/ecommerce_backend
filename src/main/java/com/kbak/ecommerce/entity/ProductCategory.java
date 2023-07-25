@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "product_category")
-// @Data -bug, when you are using relation like ont to many or many to one, use @getter and @setter instead
+// @Data -bug, when you are using relation like one to many or many to one, use @getter and @setter instead
 @Getter
 @Setter
 public class ProductCategory {

@@ -18,9 +18,8 @@ public class CheckoutController {
 
     @PostMapping("/purchase")
     public PurchaseResponse placeOrder(@RequestBody Purchase purchase) {
-
+        // call service method which return tracking number and add customer with order in db
         PurchaseResponse purchaseResponse = checkoutService.placeOrder(purchase);
-
         return purchaseResponse;
     }
 
